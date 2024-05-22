@@ -1,0 +1,18 @@
+import { Outlet } from 'react-router-dom';
+
+import { Navbar } from '../organisms';
+
+const BaseLayout = () => {
+  return (
+    <>
+      <header>
+        <Navbar />
+      </header>
+      <main>
+        <Outlet />
+      </main>
+    </>
+  );
+};
+
+export default BaseLayout;
