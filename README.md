@@ -1,2 +1,1 @@
-# client
-Hack TV client app
+# Hack TV (Client)
