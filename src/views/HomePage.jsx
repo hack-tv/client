@@ -62,7 +62,7 @@ const HomePage = () => {
       <div>
         <p>{selfId}</p>
         {/* {selfVideoRef.current.srcObject ? ( */}
-        <video ref={selfVideoRef} autoPlay />
+        <video ref={selfVideoRef} autoPlay muted />
         {/* ) : (
           <img src="https://i.pravatar.cc/300" alt="" />
         )} */}
