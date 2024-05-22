@@ -1,11 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import Peer from 'simple-peer';
 
 import SocketContext from './SocketContext';
 import socket from '../../lib/socket';
 
 const SocketProvider = ({ children }) => {
-  const [selfId, setselfId] = useState(null);
+  const [selfId, setSelfId] = useState(null);
   const [stream, setStream] = useState(null);
   const [call, setCall] = useState(null);
   const [isCallAccepted, setIsCallAccepted] = useState(false);
@@ -14,33 +14,6 @@ const SocketProvider = ({ children }) => {
   const selfVideoRef = useRef({ srcObject: null });
   const remoteVideoRef = useRef({ srcObject: null });
   const peerRef = useRef();
-
-  useEffect(() => {
-    navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((currentStream) => {
-      setStream(currentStream);
-      selfVideoRef.current.srcObject = currentStream;
-    });
-
-    socket.on('self', (id) => {
-      setselfId(id);
-      // console.log(id);
-    });
-
-    socket.on('call:started', ({ remoteId, signal }) => {
-      // console.log({ remoteId }, '<<< ini call:started');
-      setCall({ remoteId, signal });
-    });
-
-    socket.on('call:ended', () => {
-      // console.log('<<< ini call:ended');
-      setIsCallEnded(true);
-      // window.location.reload();
-    });
-
-    // return () => {
-    //   socket.disconnect();
-    // };
-  }, []);
 
   const startCall = (remoteId) => {
     // console.log(stream, '<<< ini stream');
@@ -88,6 +61,42 @@ const SocketProvider = ({ children }) => {
     // window.location.reload();
   };
 
+  const toggleVideo = () => {
+    selfVideoRef.current.srcObject.getVideoTracks().forEach((track) => {
+      track.enabled = !track.enabled;
+    });
+
+    const peer = new Peer({ initiator: false, trickle: false, stream });
+
+    peer.on('signal', (signal) => {
+      socket.emit('call:accept', { selfId, remoteId: call.remoteId, signal });
+    });
+
+    peer.on('stream', (currentStream) => {
+      remoteVideoRef.current.srcObject = currentStream;
+    });
+
+    peerRef.current = peer;
+  };
+
+  const toggleAudio = () => {
+    selfVideoRef.current.srcObject.getAudioTracks().forEach((track) => {
+      track.enabled = !track.enabled;
+    });
+
+    const peer = new Peer({ initiator: false, trickle: false, stream });
+
+    peer.on('signal', (signal) => {
+      socket.emit('call:accept', { selfId, remoteId: call.remoteId, signal });
+    });
+
+    peer.on('stream', (currentStream) => {
+      remoteVideoRef.current.srcObject = currentStream;
+    });
+
+    peerRef.current = peer;
+  };
+
   return (
     <SocketContext.Provider
       value={{
@@ -101,6 +110,12 @@ const SocketProvider = ({ children }) => {
         startCall,
         acceptCall,
         endCall,
+        toggleVideo,
+        toggleAudio,
+        setSelfId,
+        setStream,
+        setCall,
+        setIsCallEnded,
       }}
     >
       {children}

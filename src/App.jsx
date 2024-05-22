@@ -1,3 +1,4 @@
+import { GoogleOAuthProvider } from '@react-oauth/google';
 import { RouterProvider } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 
@@ -6,10 +7,12 @@ import router from './routes';
 
 const App = () => {
   return (
-    <SocketProvider>
-      <RouterProvider router={router} />
-      <ToastContainer position="bottom-center" />
-    </SocketProvider>
+    <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
+      <SocketProvider>
+        <RouterProvider router={router} />
+        <ToastContainer position="bottom-right" />
+      </SocketProvider>
+    </GoogleOAuthProvider>
   );
 };
 
