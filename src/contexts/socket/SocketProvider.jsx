@@ -5,7 +5,7 @@ import SocketContext from './SocketContext';
 import socket from '../../lib/socket';
 
 const SocketProvider = ({ children }) => {
-  const [selfId, setSelfId] = useState(null);
+  const [self, setSelf] = useState(null);
   const [stream, setStream] = useState(null);
   const [call, setCall] = useState(null);
   const [isCallAccepted, setIsCallAccepted] = useState(false);
@@ -20,16 +20,16 @@ const SocketProvider = ({ children }) => {
     const peer = new Peer({ initiator: true, trickle: false, stream });
 
     peer.on('signal', (signal) => {
-      socket.emit('call:start', { selfId, remoteId, signal });
+      socket.emit('call:start', { remoteId, self, signal });
     });
 
     peer.on('stream', (currentStream) => {
       remoteVideoRef.current.srcObject = currentStream;
     });
 
-    socket.on('call:accepted', ({ remoteId, signal }) => {
+    socket.on('call:accepted', ({ remote, signal }) => {
       peer.signal(signal);
-      setCall({ remoteId, signal });
+      setCall({ remote, signal });
       setIsCallAccepted(true);
     });
 
@@ -43,7 +43,7 @@ const SocketProvider = ({ children }) => {
     const peer = new Peer({ initiator: false, trickle: false, stream });
 
     peer.on('signal', (signal) => {
-      socket.emit('call:accept', { selfId, remoteId: call.remoteId, signal });
+      socket.emit('call:accept', { remoteId: call.remoteId, self, signal });
     });
 
     peer.on('stream', (currentStream) => {
@@ -57,7 +57,7 @@ const SocketProvider = ({ children }) => {
 
   const endCall = () => {
     setIsCallEnded(true);
-    socket.emit('call:end', { remoteId: call.remoteId });
+    socket.emit('call:end', { remoteId: call.remote.socketId });
     // window.location.reload();
   };
 
@@ -69,7 +69,7 @@ const SocketProvider = ({ children }) => {
     const peer = new Peer({ initiator: false, trickle: false, stream });
 
     peer.on('signal', (signal) => {
-      socket.emit('call:accept', { selfId, remoteId: call.remoteId, signal });
+      socket.emit('call:accept', { remoteId: call.remote.socketId, self, signal });
     });
 
     peer.on('stream', (currentStream) => {
@@ -87,7 +87,7 @@ const SocketProvider = ({ children }) => {
     const peer = new Peer({ initiator: false, trickle: false, stream });
 
     peer.on('signal', (signal) => {
-      socket.emit('call:accept', { selfId, remoteId: call.remoteId, signal });
+      socket.emit('call:accept', { remoteId: call.remote.socketId, self, signal });
     });
 
     peer.on('stream', (currentStream) => {
@@ -100,7 +100,7 @@ const SocketProvider = ({ children }) => {
   return (
     <SocketContext.Provider
       value={{
-        selfId,
+        self,
         stream,
         call,
         isCallAccepted,
@@ -112,7 +112,7 @@ const SocketProvider = ({ children }) => {
         endCall,
         toggleVideo,
         toggleAudio,
-        setSelfId,
+        setSelf,
         setStream,
         setCall,
         setIsCallEnded,
