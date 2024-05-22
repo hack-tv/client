@@ -1,15 +1,26 @@
-// import { useContext } from 'react';
+import { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
+import { SocketContext } from '../../contexts/socket';
 import socket from '../../lib/socket';
 
 const Navbar = () => {
   const navigate = useNavigate();
 
+  const { stream, call, endCall } = useContext(SocketContext);
+
   function handleLogout() {
-    socket.disconnect();
+    if (call) {
+      endCall();
+    }
+
+    stream.getTracks().forEach((track) => {
+      track.stop();
+    });
+
     localStorage.removeItem('token');
+    socket.disconnect();
     toast.success('Successfully logged out');
     navigate('/login');
   }
