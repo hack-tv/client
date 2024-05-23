@@ -8,7 +8,7 @@ const BaseLayout = () => {
       <header className="sticky top-0 z-50 shadow-xl bg-slate-800/[0.9] text-base-100 backdrop-blur">
         <Navbar />
       </header>
-      <main className="max-w-screen-xl p-4 mx-auto min-h-dvh">
+      <main className="max-w-screen-xl p-4 mx-auto">
         <Outlet />
       </main>
     </div>

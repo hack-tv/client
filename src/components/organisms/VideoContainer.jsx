@@ -17,7 +17,9 @@ const VideoContainer = () => {
 
   return (
     <section
-      className={`grid gap-4 ${call || isCalling ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'}`}
+      className={`grid gap-4 mb-40 ${
+        call || isCalling ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'
+      }`}
     >
       {self && (
         <VideoCard

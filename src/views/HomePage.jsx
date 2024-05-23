@@ -31,6 +31,7 @@ const HomePage = () => {
     socket.connect();
 
     navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((currentStream) => {
+      console.log(currentStream);
       setStream(currentStream);
       setIsVideoEnabled(true);
       setIsAudioEnabled(true);
