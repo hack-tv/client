@@ -1,29 +1,27 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect } from 'react';
 
-import { SocketContext } from '../contexts/socket';
+import { CallContext } from '../contexts/call';
+import { ActionBar, VideoContainer } from '../components/organisms';
 import socket from '../lib/socket';
 
 const HomePage = () => {
-  const [remoteId, setRemoteId] = useState('');
-
   const {
-    self,
-    call,
-    isCallAccepted,
     isCallEnded,
     selfVideoRef,
     remoteVideoRef,
     peerRef,
-    startCall,
-    acceptCall,
-    endCall,
-    toggleVideo,
-    toggleAudio,
     setSelf,
     setStream,
     setCall,
+    setIsCalling,
     setIsCallEnded,
-  } = useContext(SocketContext);
+    setIsVideoEnabled,
+    setIsAudioEnabled,
+  } = useContext(CallContext);
+
+  useEffect(() => {
+    document.title = 'Home | Hack TV';
+  }, []);
 
   useEffect(() => {
     socket.auth = {
@@ -34,6 +32,8 @@ const HomePage = () => {
 
     navigator.mediaDevices.getUserMedia({ video: true, audio: true }).then((currentStream) => {
       setStream(currentStream);
+      setIsVideoEnabled(true);
+      setIsAudioEnabled(true);
       selfVideoRef.current.srcObject = currentStream;
     });
 
@@ -47,6 +47,7 @@ const HomePage = () => {
 
     socket.on('call:ended', () => {
       setCall(null);
+      setIsCalling(false);
       setIsCallEnded(true);
       peerRef.current = null;
     });
@@ -57,70 +58,42 @@ const HomePage = () => {
       socket.off('call:accepted');
       socket.off('call:ended');
     };
-  }, [selfVideoRef, remoteVideoRef, peerRef, setStream, setSelf, setIsCallEnded, setCall]);
+  }, [
+    selfVideoRef,
+    remoteVideoRef,
+    peerRef,
+    setSelf,
+    setStream,
+    setCall,
+    setIsCalling,
+    setIsCallEnded,
+    setIsVideoEnabled,
+    setIsAudioEnabled,
+  ]);
 
   return (
     <>
-      <section className="flex flex-col justify-center min-h-screen p-5 bg-slate-900">
-        <div
-          className={`bg-slate-100 grid ${
-            call ? 'grid-cols-2' : 'grid-cols-1'
-          } justify-items-center rounded-md`}
-        >
-          {/* {stream && ( */}
-          <div>
-            <p>Name: {self?.name}</p>
-            <p>ID: {self?.socketId}</p>
-            {/* {selfVideoRef.current.srcObject ? ( */}
-            <video ref={selfVideoRef} autoPlay muted />
-            {/* ) : (
-          <img src="https://i.pravatar.cc/300" alt="" />
-        )} */}
-            <button onClick={toggleVideo}>Toggle Video</button>
-            <button onClick={toggleAudio}>Toggle Audio</button>
-          </div>
-          {/* )} */}
+      {isCallEnded && (
+        <section role="alert" className="mb-4 alert alert-warning">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-6 h-6 stroke-current shrink-0"
+            fill="none"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
+          </svg>
+          <span>Thank you for using our app. Please generate new ID to call again.</span>
+        </section>
+      )}
 
-          {isCallAccepted && !isCallEnded && (
-            <div>
-              <p>Name: {call.remote.name}</p>
-              <p>ID: {call.remote.socketId}</p>
-              {/* {remoteVideoRef.current.srcObject ? ( */}
-              <video ref={remoteVideoRef} autoPlay />
-              {/* ) : (
-            <img src="https://i.pravatar.cc/300" alt="" />
-          )} */}
-            </div>
-          )}
-        </div>
-        <div className="flex justify-center bottom-10">
-          {isCallAccepted && !isCallEnded ? (
-            <div>
-              <button className="btn" onClick={endCall}>
-                End Call
-              </button>
-            </div>
-          ) : (
-            <div className="flex flex-col justify-center">
-              <div>
-                <input type="text" value={remoteId} onChange={(e) => setRemoteId(e.target.value)} />
-              </div>
-              <div>
-                <button className="justify-center btn" onClick={() => startCall(remoteId)}>
-                  Call
-                </button>
-              </div>
-            </div>
-          )}
-
-          {call && !isCallAccepted && (
-            <div>
-              <p>{call.remote.name} is calling...</p>
-              <button onClick={acceptCall}>Accept</button>
-            </div>
-          )}
-        </div>
-      </section>
+      <VideoContainer />
+      <ActionBar />
     </>
   );
 };

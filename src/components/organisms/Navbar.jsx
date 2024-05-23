@@ -2,13 +2,13 @@ import { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 
-import { SocketContext } from '../../contexts/socket';
+import { CallContext } from '../../contexts/call';
 import socket from '../../lib/socket';
 
 const Navbar = () => {
-  const navigate = useNavigate();
+  const { stream, call, endCall } = useContext(CallContext);
 
-  const { stream, call, endCall } = useContext(SocketContext);
+  const navigate = useNavigate();
 
   function handleLogout() {
     if (call) {
@@ -27,10 +27,17 @@ const Navbar = () => {
     navigate('/login');
   }
   return (
-    <nav className="flex flex-row justify-between p-5 bg-gray-100">
-      <div>Home</div>
-      <div>
-        <Link onClick={handleLogout}>Logout</Link>
+    <nav className="max-w-screen-xl px-4 mx-auto navbar">
+      <div className="navbar-start">
+        <Link to="/" className="text-xl btn btn-ghost">
+          <img src="/hack-tv.png" alt="Logo" width={40} />
+          <span className="ml-1">Hack TV</span>
+        </Link>
+      </div>
+      <div className="navbar-end">
+        <button className="text-base-100 btn btn-error" onClick={handleLogout}>
+          Logout
+        </button>
       </div>
     </nav>
   );
