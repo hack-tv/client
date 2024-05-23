@@ -13,10 +13,9 @@ const SocketProvider = ({ children }) => {
 
   const selfVideoRef = useRef({ srcObject: null });
   const remoteVideoRef = useRef({ srcObject: null });
-  const peerRef = useRef();
+  const peerRef = useRef(null);
 
   const startCall = (remoteId) => {
-    // console.log(stream, '<<< ini stream');
     const peer = new Peer({ initiator: true, trickle: false, stream });
 
     peer.on('signal', (signal) => {
@@ -37,13 +36,12 @@ const SocketProvider = ({ children }) => {
   };
 
   const acceptCall = () => {
-    // console.log(stream, '<<< ini stream');
     setIsCallAccepted(true);
 
     const peer = new Peer({ initiator: false, trickle: false, stream });
 
     peer.on('signal', (signal) => {
-      socket.emit('call:accept', { remoteId: call.remoteId, self, signal });
+      socket.emit('call:accept', { remoteId: call.remote.socketId, self, signal });
     });
 
     peer.on('stream', (currentStream) => {
@@ -56,9 +54,10 @@ const SocketProvider = ({ children }) => {
   };
 
   const endCall = () => {
+    setCall(null);
     setIsCallEnded(true);
+    peerRef.current = null;
     socket.emit('call:end', { remoteId: call.remote.socketId });
-    // window.location.reload();
   };
 
   const toggleVideo = () => {
@@ -107,6 +106,7 @@ const SocketProvider = ({ children }) => {
         isCallEnded,
         selfVideoRef,
         remoteVideoRef,
+        peerRef,
         startCall,
         acceptCall,
         endCall,
@@ -115,6 +115,7 @@ const SocketProvider = ({ children }) => {
         setSelf,
         setStream,
         setCall,
+        setIsCallAccepted,
         setIsCallEnded,
       }}
     >

@@ -13,6 +13,7 @@ const HomePage = () => {
     isCallEnded,
     selfVideoRef,
     remoteVideoRef,
+    peerRef,
     startCall,
     acceptCall,
     endCall,
@@ -38,19 +39,16 @@ const HomePage = () => {
 
     socket.on('self', ({ self }) => {
       setSelf(self);
-      console.log(self);
-      // console.log(id);
     });
 
     socket.on('call:started', ({ remote, signal }) => {
-      // console.log({ remoteId }, '<<< ini call:started');
       setCall({ remote, signal });
     });
 
     socket.on('call:ended', () => {
-      // console.log('<<< ini call:ended');
+      setCall(null);
       setIsCallEnded(true);
-      // window.location.reload();
+      peerRef.current = null;
     });
 
     return () => {
@@ -59,7 +57,7 @@ const HomePage = () => {
       socket.off('call:accepted');
       socket.off('call:ended');
     };
-  }, [selfVideoRef, remoteVideoRef, setStream, setSelf, setIsCallEnded, setCall]);
+  }, [selfVideoRef, remoteVideoRef, peerRef, setSelf, setStream, setCall, setIsCallEnded]);
 
   return (
     <div>
@@ -67,11 +65,7 @@ const HomePage = () => {
       <div>
         <p>Name: {self?.name}</p>
         <p>ID: {self?.socketId}</p>
-        {/* {selfVideoRef.current.srcObject ? ( */}
         <video ref={selfVideoRef} autoPlay muted />
-        {/* ) : (
-          <img src="https://i.pravatar.cc/300" alt="" />
-        )} */}
         <button onClick={toggleVideo}>Toggle Video</button>
         <button onClick={toggleAudio}>Toggle Audio</button>
       </div>
@@ -82,6 +76,7 @@ const HomePage = () => {
           <p>Name: {call.remote.name}</p>
           <p>ID: {call.remote.socketId}</p>
           {/* {remoteVideoRef.current.srcObject ? ( */}
+          {/* {!isRemoteVideoEnabled && <img src="https://i.pravatar.cc/300" alt="" />} */}
           <video ref={remoteVideoRef} autoPlay />
           {/* ) : (
             <img src="https://i.pravatar.cc/300" alt="" />
@@ -97,6 +92,12 @@ const HomePage = () => {
         <div>
           <input type="text" value={remoteId} onChange={(e) => setRemoteId(e.target.value)} />
           <button onClick={() => startCall(remoteId)}>Call</button>
+        </div>
+      )}
+
+      {isCallEnded && (
+        <div>
+          <button onClick={() => window.location.reload()}>Refresh ID</button>
         </div>
       )}
 

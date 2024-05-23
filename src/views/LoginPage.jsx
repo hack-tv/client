@@ -30,6 +30,7 @@ const LoginPage = () => {
       const { data } = await axios.get('/auth/google', {
         headers: {
           token: response.credential,
+          'ngrok-skip-browser-warning': 'true',
         },
       });
 

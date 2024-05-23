@@ -15,12 +15,14 @@ const Navbar = () => {
       endCall();
     }
 
-    stream.getTracks().forEach((track) => {
-      track.stop();
-    });
+    if (stream) {
+      stream.getTracks().forEach((track) => {
+        track.stop();
+      });
+    }
 
-    localStorage.removeItem('token');
     socket.disconnect();
+    localStorage.removeItem('token');
     toast.success('Successfully logged out');
     navigate('/login');
   }
