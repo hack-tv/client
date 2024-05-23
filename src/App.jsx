@@ -10,7 +10,7 @@ const App = () => {
     <GoogleOAuthProvider clientId={import.meta.env.VITE_GOOGLE_CLIENT_ID}>
       <CallProvider>
         <RouterProvider router={router} />
-        <ToastContainer position="bottom-right" />
+        <ToastContainer position="bottom-center" />
       </CallProvider>
     </GoogleOAuthProvider>
   );

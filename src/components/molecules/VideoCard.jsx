@@ -7,7 +7,7 @@ const VideoCard = forwardRef(({ id, name, isIdle, isMuted }, ref) => {
         isIdle ? 'max-w-[40rem] mx-auto' : 'w-full'
       }`}
     >
-      <video ref={ref} autoPlay muted={isMuted} className="rounded-lg" />
+      <video ref={ref} autoPlay muted={isMuted} className="border-4 rounded-lg" />
       <div className="py-2">
         <p>
           <b>ID:</b> {id}
