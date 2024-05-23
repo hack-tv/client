@@ -1,22 +1,25 @@
 import { useState, useRef } from 'react';
 import Peer from 'simple-peer';
 
-import SocketContext from './SocketContext';
+import CallContext from './CallContext';
 import socket from '../../lib/socket';
 
-const SocketProvider = ({ children }) => {
+const CallProvider = ({ children }) => {
   const [self, setSelf] = useState(null);
+  const [remoteId, setRemoteId] = useState('');
   const [stream, setStream] = useState(null);
   const [call, setCall] = useState(null);
+  const [isCalling, setIsCalling] = useState(false);
   const [isCallAccepted, setIsCallAccepted] = useState(false);
   const [isCallEnded, setIsCallEnded] = useState(false);
+  const [isVideoEnabled, setIsVideoEnabled] = useState(false);
+  const [isAudioEnabled, setIsAudioEnabled] = useState(false);
 
   const selfVideoRef = useRef({ srcObject: null });
   const remoteVideoRef = useRef({ srcObject: null });
-  const peerRef = useRef();
+  const peerRef = useRef(null);
 
   const startCall = (remoteId) => {
-    // console.log(stream, '<<< ini stream');
     const peer = new Peer({ initiator: true, trickle: false, stream });
 
     peer.on('signal', (signal) => {
@@ -37,13 +40,12 @@ const SocketProvider = ({ children }) => {
   };
 
   const acceptCall = () => {
-    // console.log(stream, '<<< ini stream');
     setIsCallAccepted(true);
 
     const peer = new Peer({ initiator: false, trickle: false, stream });
 
     peer.on('signal', (signal) => {
-      socket.emit('call:accept', { remoteId: call.remoteId, self, signal });
+      socket.emit('call:accept', { remoteId: call.remote.socketId, self, signal });
     });
 
     peer.on('stream', (currentStream) => {
@@ -56,9 +58,10 @@ const SocketProvider = ({ children }) => {
   };
 
   const endCall = () => {
+    setCall(null);
     setIsCallEnded(true);
+    peerRef.current = null;
     socket.emit('call:end', { remoteId: call.remote.socketId });
-    // window.location.reload();
   };
 
   const toggleVideo = () => {
@@ -98,29 +101,39 @@ const SocketProvider = ({ children }) => {
   };
 
   return (
-    <SocketContext.Provider
+    <CallContext.Provider
       value={{
         self,
+        remoteId,
         stream,
         call,
+        isCalling,
         isCallAccepted,
         isCallEnded,
+        isVideoEnabled,
+        isAudioEnabled,
         selfVideoRef,
         remoteVideoRef,
+        peerRef,
         startCall,
         acceptCall,
         endCall,
         toggleVideo,
         toggleAudio,
         setSelf,
+        setRemoteId,
         setStream,
         setCall,
+        setIsCalling,
+        setIsCallAccepted,
         setIsCallEnded,
+        setIsVideoEnabled,
+        setIsAudioEnabled,
       }}
     >
       {children}
-    </SocketContext.Provider>
+    </CallContext.Provider>
   );
 };
 
-export default SocketProvider;
+export default CallProvider;
