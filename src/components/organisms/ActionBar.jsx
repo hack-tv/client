@@ -31,13 +31,13 @@ const ActionBar = () => {
       <div className="flex flex-col sm:flex-row justify-between items-center max-w-screen-xl gap-2 p-4 mx-auto shadow-xl bg-slate-800/[0.9] text-base-100 rounded-xl">
         <div className="flex gap-2">
           <button
-            className={`btn text-base-100 ${isVideoEnabled ? 'btn-error' : 'btn-success'}`}
+            className={`btn text-base-100 ${!isVideoEnabled ? 'btn-error' : 'btn-success'}`}
             onClick={() => {
               toggleVideo();
               setIsVideoEnabled(!isVideoEnabled);
             }}
           >
-            {isVideoEnabled ? (
+            {!isVideoEnabled ? (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
@@ -58,13 +58,13 @@ const ActionBar = () => {
             )}
           </button>
           <button
-            className={`btn text-base-100 ${isAudioEnabled ? 'btn-error' : 'btn-success'}`}
+            className={`btn text-base-100 ${!isAudioEnabled ? 'btn-error' : 'btn-success'}`}
             onClick={() => {
               toggleAudio();
               setIsAudioEnabled(!isAudioEnabled);
             }}
           >
-            {isAudioEnabled ? (
+            {!isAudioEnabled ? (
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
